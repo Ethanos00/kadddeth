@@ -7,3 +7,5 @@ scikit-learn
 xgboost
 folium
 streamlit
+plotly
+streamlit-folium
