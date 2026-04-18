@@ -46,10 +46,16 @@ def inject_custom_css(theme_name: str):
             color: {t["text"]};
         }}
 
+        /* Hide top header / deploy bar */
+        .stApp header,
+        .stApp [data-testid="stHeader"] {{
+            display: none !important;
+        }}
+
         /* Force text color on ALL Streamlit elements */
         .stApp, .stApp p, .stApp span, .stApp label, .stApp div,
         .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
-        .stApp li, .stApp td, .stApp th, .stApp caption,
+        .stApp li, .stApp td, .stApp th, .stApp caption, .stApp strong, .stApp em, .stApp a,
         .stApp .stMarkdown, .stApp .stMarkdown p,
         .stApp .stMarkdown li, .stApp .stMarkdown span,
         .stApp [data-testid="stText"],
@@ -66,6 +72,7 @@ def inject_custom_css(theme_name: str):
         .stApp [data-testid="stMarkdownContainer"] h4,
         .stApp [data-testid="stMarkdownContainer"] td,
         .stApp [data-testid="stMarkdownContainer"] th,
+        .stApp [data-testid="stMarkdownContainer"] strong,
         .stApp [data-testid="stWidgetLabel"] p,
         .stApp [data-testid="stWidgetLabel"] label,
         .stApp .stRadio label,
@@ -89,6 +96,7 @@ def inject_custom_css(theme_name: str):
         section[data-testid="stSidebar"] h4,
         section[data-testid="stSidebar"] h5,
         section[data-testid="stSidebar"] li,
+        section[data-testid="stSidebar"] strong,
         section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
         section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] span,
         section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p,
@@ -123,13 +131,9 @@ def inject_custom_css(theme_name: str):
         .hero-title {{
             font-size: 2rem;
             font-weight: 800;
-            background: linear-gradient(135deg, {t["accent"]}, #06b6d4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: {t["accent"]} !important;
             margin-bottom: 0;
-            padding-top: 4px;
-            line-height: 1.4;
-            display: inline-block;
+            padding: 0;
         }}
         .hero-subtitle {{
             font-size: 1.05rem;
@@ -140,16 +144,51 @@ def inject_custom_css(theme_name: str):
 
         /* ---- Misc polish ---- */
         .block-container {{
-            padding-top: 2rem;
-        }}
-        .stSlider > div > div > div > div {{
-            background-color: {t["accent"]};
+            padding-top: 1rem;
         }}
 
-        /* ---- Expander text ---- */
+        /* ---- Slider: blue thumb, gray track ---- */
+        .stSlider [data-testid="stThumbValue"] {{
+            color: {t["text"]} !important;
+        }}
+        .stSlider [role="slider"] {{
+            background-color: {t["accent"]} !important;
+        }}
+        .stSlider [data-baseweb="slider"] div[role="slider"] {{
+            background-color: {t["accent"]} !important;
+            border-color: {t["accent"]} !important;
+        }}
+        /* Track (filled portion) */
+        .stSlider [data-baseweb="slider"] div:nth-child(3) > div {{
+            background-color: {t["accent"]} !important;
+        }}
+        /* Track (unfilled portion) */
+        .stSlider [data-baseweb="slider"] div:nth-child(4) > div {{
+            background-color: #94a3b8 !important;
+        }}
+        /* Fallback slider overrides */
+        .stSlider > div > div > div > div {{
+            background-color: #94a3b8 !important;
+        }}
+        .stSlider > div > div > div > div > div {{
+            background-color: {t["accent"]} !important;
+        }}
+
+        /* ---- Expander / details text ---- */
+        .stApp details,
+        .stApp details summary,
         .stApp details summary span,
+        .stApp details summary svg,
+        .stApp details > div,
         .stApp details p, .stApp details li,
-        .stApp details span, .stApp details blockquote p {{
+        .stApp details span, .stApp details blockquote,
+        .stApp details blockquote p,
+        .stApp details strong, .stApp details em,
+        .stApp [data-testid="stExpander"],
+        .stApp [data-testid="stExpander"] p,
+        .stApp [data-testid="stExpander"] li,
+        .stApp [data-testid="stExpander"] span,
+        .stApp [data-testid="stExpander"] strong {{
             color: {t["text"]} !important;
         }}
 

@@ -22,11 +22,12 @@ def inject_page_css(t):
     <style>
         .stApp {{ background-color: {t["bg"]}; color: {t["text"]}; }}
         section[data-testid="stSidebar"] {{ background-color: {t["bg_secondary"]}; }}
+        .stApp header, .stApp [data-testid="stHeader"] {{ display: none !important; }}
 
         /* Force text color everywhere */
         .stApp, .stApp p, .stApp span, .stApp label, .stApp div,
         .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
-        .stApp li, .stApp td, .stApp th,
+        .stApp li, .stApp td, .stApp th, .stApp strong, .stApp em, .stApp a, .stApp code,
         .stApp [data-testid="stMarkdownContainer"] p,
         .stApp [data-testid="stMarkdownContainer"] span,
         .stApp [data-testid="stMarkdownContainer"] li,
@@ -41,30 +42,44 @@ def inject_page_css(t):
         .stApp [data-testid="stWidgetLabel"] p,
         section[data-testid="stSidebar"] p,
         section[data-testid="stSidebar"] span,
-        section[data-testid="stSidebar"] label,
-        section[data-testid="stSidebar"] h1,
-        section[data-testid="stSidebar"] h2,
-        section[data-testid="stSidebar"] h3,
-        section[data-testid="stSidebar"] li,
+        section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] strong,
+        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] li,
         section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
-        section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p,
-        .stApp details summary span,
+        section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p {{
+            color: {t["text"]} !important;
+        }}
+
+        /* Expanders — comprehensive text overrides */
+        .stApp details, .stApp details summary, .stApp details summary span,
+        .stApp details summary svg,
+        .stApp details > div, .stApp details > div > div,
         .stApp details p, .stApp details li,
-        .stApp details span, .stApp details blockquote p,
-        .stApp details strong, .stApp details td, .stApp details th,
-        .confidence-high, .confidence-high strong,
-        .confidence-med, .confidence-med strong,
-        .confidence-low, .confidence-low strong {{
+        .stApp details span, .stApp details blockquote,
+        .stApp details blockquote p,
+        .stApp details strong, .stApp details em,
+        .stApp details td, .stApp details th, .stApp details code,
+        .stApp details h4, .stApp details h3,
+        .stApp [data-testid="stExpander"],
+        .stApp [data-testid="stExpander"] p,
+        .stApp [data-testid="stExpander"] li,
+        .stApp [data-testid="stExpander"] span,
+        .stApp [data-testid="stExpander"] strong,
+        .stApp [data-testid="stExpander"] td,
+        .stApp [data-testid="stExpander"] th,
+        .stApp [data-testid="stExpander"] code,
+        .stApp [data-testid="stExpander"] h3,
+        .stApp [data-testid="stExpander"] h4,
+        .confidence-high, .confidence-high strong, .confidence-high br,
+        .confidence-med, .confidence-med strong, .confidence-med br,
+        .confidence-low, .confidence-low strong, .confidence-low br {{
             color: {t["text"]} !important;
         }}
 
         .hero-title {{
             font-size: 2rem; font-weight: 800;
-            background: linear-gradient(135deg, {t["accent"]}, #06b6d4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0; padding-top: 4px;
-            line-height: 1.4; display: inline-block;
+            color: {t["accent"]} !important;
+            margin-bottom: 0; padding: 0;
         }}
         .hero-subtitle {{
             font-size: 1.05rem; opacity: 0.7;

@@ -23,31 +23,37 @@ def inject_page_css(t):
     <style>
         .stApp {{ background-color: {t["bg"]}; color: {t["text"]}; }}
         section[data-testid="stSidebar"] {{ background-color: {t["bg_secondary"]}; }}
+        .stApp header, .stApp [data-testid="stHeader"] {{ display: none !important; }}
 
         /* Force text color everywhere */
         .stApp, .stApp p, .stApp span, .stApp label, .stApp div,
         .stApp h1, .stApp h2, .stApp h3, .stApp h4, .stApp h5, .stApp h6,
-        .stApp li, .stApp td, .stApp th,
+        .stApp li, .stApp td, .stApp th, .stApp strong, .stApp em, .stApp a,
         .stApp [data-testid="stMarkdownContainer"] p,
         .stApp [data-testid="stMarkdownContainer"] span,
         .stApp [data-testid="stMarkdownContainer"] li,
         .stApp [data-testid="stMarkdownContainer"] h1,
         .stApp [data-testid="stMarkdownContainer"] h2,
         .stApp [data-testid="stMarkdownContainer"] h3,
+        .stApp [data-testid="stMarkdownContainer"] strong,
         .stApp [data-testid="stCaptionContainer"] p,
         .stApp [data-testid="stWidgetLabel"] p,
         .stApp .stRadio label, .stApp .stCheckbox label,
         section[data-testid="stSidebar"] p,
         section[data-testid="stSidebar"] span,
-        section[data-testid="stSidebar"] label,
-        section[data-testid="stSidebar"] h1,
-        section[data-testid="stSidebar"] h2,
-        section[data-testid="stSidebar"] h3,
+        section[data-testid="stSidebar"] label, section[data-testid="stSidebar"] strong,
+        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2,
+        section[data-testid="stSidebar"] h3, section[data-testid="stSidebar"] li,
         section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p,
         section[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p,
-        .stApp details summary span,
-        .stApp details p, .stApp details li,
-        .stApp details span, .stApp details blockquote p {{
+        .stApp details, .stApp details summary, .stApp details summary span,
+        .stApp details > div, .stApp details p, .stApp details li,
+        .stApp details span, .stApp details blockquote, .stApp details blockquote p,
+        .stApp details strong, .stApp details em,
+        .stApp [data-testid="stExpander"] p,
+        .stApp [data-testid="stExpander"] li,
+        .stApp [data-testid="stExpander"] span,
+        .stApp [data-testid="stExpander"] strong {{
             color: {t["text"]} !important;
         }}
 
@@ -68,11 +74,8 @@ def inject_page_css(t):
         }}
         .hero-title {{
             font-size: 2rem; font-weight: 800;
-            background: linear-gradient(135deg, {t["accent"]}, #06b6d4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 0; padding-top: 4px;
-            line-height: 1.4; display: inline-block;
+            color: {t["accent"]} !important;
+            margin-bottom: 0; padding: 0;
         }}
         .hero-subtitle {{
             font-size: 1.05rem; opacity: 0.7;
