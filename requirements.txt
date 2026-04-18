@@ -1,0 +1,9 @@
+xarray[complete]
+netCDF4
+dask
+pandas
+geopandas
+scikit-learn
+xgboost
+folium
+streamlit
