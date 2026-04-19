@@ -9,10 +9,12 @@ polygon overlays.
 """
 
 import streamlit as st
+import plotly.graph_objects as go
 from streamlit_folium import st_folium
 from utils.constants import YEAR_MIN, YEAR_MAX, THEMES
 from utils.model_data import generate_habitat_grid, generate_coverage_timeseries
 from utils.map_utils import build_habitat_map
+from utils.gfw_data import get_annual_effort, get_closure_effort, CACHED_ANNUAL_EFFORT
 
 # ---------------------------------------------------------------------------
 # Page configuration
@@ -234,6 +236,7 @@ with st.sidebar:
     )
 
     show_closures = st.checkbox("Show Conservation Closures", value=True)
+    show_fishing = st.checkbox("Show Fishing Pressure", value=False)
 
     st.divider()
 
@@ -261,6 +264,19 @@ with st.sidebar:
         </div>
         """, unsafe_allow_html=True)
 
+    if show_fishing:
+        st.markdown("**Fishing Pressure**")
+        st.markdown("""
+        <div class="map-legend">
+            <span class="legend-swatch" style="background:#22c55e; border-radius:50%"></span>
+            <span class="legend-label">GEA: no fishing detected</span>
+        </div>
+        <div class="map-legend">
+            <span class="legend-swatch" style="background:#f97316; border-radius:50%"></span>
+            <span class="legend-label">Fleet operating zone</span>
+        </div>
+        """, unsafe_allow_html=True)
+
     st.divider()
     st.caption("Data: CalCOFI CUFES · NOAA · XGBoost")
 
@@ -280,12 +296,19 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-# Generate data & build map
+# Load fishing data (cached — no API calls at runtime)
+closure_effort = get_closure_effort()
+annual_effort = get_annual_effort()
+
+# Generate habitat data & build map
 grid = generate_habitat_grid(selected_year)
 habitat_map = build_habitat_map(
     grid,
     theme_name=st.session_state.theme,
     show_closures=show_closures,
+    show_fishing=show_fishing,
+    closure_effort=closure_effort,
+    annual_effort=annual_effort,
 )
 
 # Display map
@@ -322,6 +345,90 @@ with col3:
         <div class="metric-label">Grid cells with ≥ 20%<br>suitability in {selected_year}</div>
     </div>
     """, unsafe_allow_html=True)
+
+# ---------------------------------------------------------------------------
+# Combined: Habitat coverage vs. fishing effort (2016–2022)
+# ---------------------------------------------------------------------------
+st.markdown("---")
+st.markdown("### Three-Layer Analysis: Habitat · Closures · Fishing Pressure")
+st.markdown(
+    '<p style="opacity:0.65; font-size:0.95rem;">How do the three layers relate over time? '
+    'If fishing effort tracks habitat availability, spatial management could make a difference.</p>',
+    unsafe_allow_html=True,
+)
+
+# Build shared year range
+import pandas as pd
+coverage_ts = generate_coverage_timeseries()
+overlap_years = sorted(set(annual_effort.keys()) & set(coverage_ts["year"].tolist()))
+overlap_years = [y for y in overlap_years if y >= 2016]
+
+cov_vals = [coverage_ts[coverage_ts["year"] == y]["coverage_pct"].values[0] for y in overlap_years]
+effort_vals = [annual_effort.get(y, 0) for y in overlap_years]
+
+t = THEMES[st.session_state.theme]
+fig_combined = go.Figure()
+
+# Bars: fishing effort (right axis)
+fig_combined.add_trace(go.Bar(
+    x=overlap_years, y=effort_vals,
+    name="Purse seiner effort (hrs)",
+    marker_color="#f97316",
+    marker_opacity=0.75,
+    yaxis="y2",
+    hovertemplate="<b>%{x}</b><br>Fishing: %{y:.0f} hrs<extra></extra>",
+))
+
+# Line: incidental coverage (left axis)
+fig_combined.add_trace(go.Scatter(
+    x=overlap_years, y=cov_vals,
+    name="Incidental coverage (%)",
+    line=dict(color=t["accent"], width=2.5),
+    mode="lines+markers",
+    marker=dict(size=7),
+    yaxis="y1",
+    hovertemplate="<b>%{x}</b><br>Coverage: %{y:.1f}%<extra></extra>",
+))
+
+fig_combined.update_layout(
+    template=t["plotly_template"],
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    height=320,
+    margin=dict(l=50, r=60, t=20, b=40),
+    hovermode="x unified",
+    bargap=0.35,
+    legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+    xaxis=dict(title="Year", gridcolor=t["card_border"], dtick=1),
+    yaxis=dict(
+        title="Incidental coverage (%)",
+        gridcolor=t["card_border"],
+        titlefont=dict(color=t["accent"]),
+        tickfont=dict(color=t["accent"]),
+    ),
+    yaxis2=dict(
+        title="Vessel-hours fished",
+        overlaying="y", side="right",
+        titlefont=dict(color="#f97316"),
+        tickfont=dict(color="#f97316"),
+        showgrid=False,
+    ),
+)
+st.plotly_chart(fig_combined, use_container_width=True)
+
+st.markdown(f"""
+<div style="background:{t['card_bg']}; border-left:3px solid {t['accent']};
+     border-radius:8px; padding:14px 18px; margin-top:4px; font-size:0.9rem;">
+    <strong>What this shows:</strong> Purse seiner effort (orange bars) and the fraction of
+    anchovy habitat inside closures (blue line) are plotted together. The fleet peaked at
+    <strong>307 hrs in 2017</strong> — after the warm blob disrupted habitat in 2015–2016.
+    Zero fishing was detected inside any GEA closure across all years, while the broader
+    region saw up to 307 vessel-hours of effort. The closures offer
+    <em>incidental habitat overlap but zero pressure reduction</em> — the fleet operates
+    entirely in unprotected coastal waters.
+</div>
+""", unsafe_allow_html=True)
+st.markdown("")
 
 # ---------------------------------------------------------------------------
 # Context blurb
