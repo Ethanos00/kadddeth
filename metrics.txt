@@ -1,0 +1,51 @@
+✅ Best Parameters Found: {'subsample': 0.7, 'n_estimators': 100, 'max_depth': 5, 'learning_rate': 0.05}
+
+📊 --- SPATIAL MODEL EVALUATION ---
+
+Classification Report (Check the '1' row for Recall!):
+              precision    recall  f1-score   support
+
+           0       0.98      0.81      0.89     40904
+           1       0.34      0.89      0.50      4596
+
+    accuracy                           0.82     45500
+   macro avg       0.66      0.85      0.69     45500
+weighted avg       0.92      0.82      0.85     45500
+
+
+Confusion Matrix:
+True Negatives (Top Left) | False Positives (Top Right)
+False Negatives (Bot Left)| True Positives (Bot Right)
+[[33127  7777]
+ [  509  4087]]
+
+🌊 Running Fold-by-Fold Spatial Validation...
+
+📍 --- FOLD 1 (Ocean Block 1) ---
+Recall:  0.8297
+ROC-AUC: 0.8839
+Accuracy:0.7996
+
+📍 --- FOLD 2 (Ocean Block 2) ---
+Recall:  0.8504
+ROC-AUC: 0.9026
+Accuracy:0.8088
+
+📍 --- FOLD 3 (Ocean Block 3) ---
+Recall:  0.8772
+ROC-AUC: 0.9137
+Accuracy:0.8295
+
+📍 --- FOLD 4 (Ocean Block 4) ---
+Recall:  0.8532
+ROC-AUC: 0.9073
+Accuracy:0.8151
+
+📍 --- FOLD 5 (Ocean Block 5) ---
+Recall:  0.7923
+ROC-AUC: 0.8973
+Accuracy:0.8092
+
+🏆 --- OVERALL SPATIAL CV PERFORMANCE ---
+Average Recall:  0.8405 (± 0.0284)
+Average ROC-AUC: 0.9009 (± 0.0101)
