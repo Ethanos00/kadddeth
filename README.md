@@ -245,3 +245,23 @@ This tab is where rigor lives. It should include:
 ## The One Thing That Saves Us
 
 > Ship MVP by hour 14. Everything after that is polish and presentation. A clean, honest, scoped demo beats an ambitious broken one every time.
+
+---
+
+## Current Project Status & Updated Plan
+
+*As of milestone check-in, the Core MVP is fully functional and successfully transitions from mock data to real ML outputs.*
+
+### What is Complete:
+1. **Model Integration:** `anchovy_xgb_model.pkl` is successfully tied into the backend (`utils/model_data.py`), generating real-time predictive habitat grids instead of synthetic noise.
+2. **Coverage Analytics:** Built robust Shapely-based cell-intersection logic to accurately calculate incidental coverage overlaps. 
+3. **Core UI/UX:** The dashboard looks premium. Dark/Light mode, map visualizations (Folium), time-series charts (Plotly), and Metric Cards are fully operational with real data scaling (1996–2022).
+4. **Scenario Logic:** Built scenario functions that apply uniform thermal shifts to base feature matrices, dynamically generating "what-if" models.
+
+### Proposed Next Steps & Additional Features:
+Since the MVP is largely complete ahead of the "Hour 14" limit, we can begin shifting our focus towards the stretch goals that will provide a huge multiplier during our pitches:
+
+1. **Populate Real Methodology Metrics:** Calculate the actual R², AUC, and feature importances for `anchovy_xgb_model.pkl` and inject them directly into the Methodology tab's info boxes.
+2. **Visualize Predator-Prey Mismatch (High Priority Stretch Goal):** Plot fixed locations of known Channel Island brown pelican nesting colonies or sea lion rookeries over the Folium map. Seeing offshore suitable habitat shift away from fixed nearshore predators makes the "ecosystem cascade" point immediately visually obvious to judges.
+3. **Random-Placement Baseline:** Generate a metric that compares current coverage to what overlap would look like if closure areas were distributed completely randomly. This explicitly answers: "Are current closures better than nothing for anchovies?"
+4. **Deploy Application:** Test the app structure on Streamlit Community Cloud (via `requirements.txt`) so we have a live URL to drop into our presentations and share with judges.
