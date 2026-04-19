@@ -8,7 +8,7 @@ inside any existing conservation closure, from 1997 to present.
 import streamlit as st
 import plotly.graph_objects as go
 from utils.constants import THEMES, KEY_EVENTS, YEAR_MIN, YEAR_MAX
-from utils.mock_data import generate_coverage_timeseries
+from utils.model_data import generate_coverage_timeseries
 
 # ---------------------------------------------------------------------------
 # Theme

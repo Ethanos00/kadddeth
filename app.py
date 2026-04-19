@@ -11,7 +11,7 @@ polygon overlays.
 import streamlit as st
 from streamlit_folium import st_folium
 from utils.constants import YEAR_MIN, YEAR_MAX, THEMES
-from utils.mock_data import generate_habitat_grid, generate_coverage_timeseries
+from utils.model_data import generate_habitat_grid, generate_coverage_timeseries
 from utils.map_utils import build_habitat_map
 
 # ---------------------------------------------------------------------------
@@ -275,8 +275,7 @@ with st.sidebar:
         """, unsafe_allow_html=True)
 
     st.divider()
-    st.caption("Data: CalCOFI · NOAA · EasyOneArgo")
-    st.caption("⚠️ Mock data — model pipeline pending")
+    st.caption("Data: CalCOFI CUFES · NOAA · XGBoost")
 
 
 # ---------------------------------------------------------------------------
@@ -311,7 +310,7 @@ st_folium(habitat_map, width="stretch", height=560, returned_objects=[])
 coverage_ts = generate_coverage_timeseries()
 current_coverage = coverage_ts[coverage_ts["year"] == selected_year]["coverage_pct"].values[0]
 avg_coverage = coverage_ts["coverage_pct"].mean()
-high_hab_cells = (grid["suitability"] >= 0.5).sum()
+high_hab_cells = (grid["suitability"] >= 0.2).sum()
 total_cells = len(grid)
 
 col1, col2, col3 = st.columns(3)
@@ -333,7 +332,7 @@ with col3:
     st.markdown(f"""
     <div class="metric-card">
         <div class="metric-value">{high_hab_cells}/{total_cells}</div>
-        <div class="metric-label">Grid cells with ≥ 50%<br>suitability in {selected_year}</div>
+        <div class="metric-label">Grid cells with ≥ 20%<br>suitability in {selected_year}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -344,17 +343,15 @@ st.markdown("---")
 with st.expander("ℹ️  About this view", expanded=False):
     st.markdown("""
     **What you're seeing:** A 0.5° gridded estimate of anchovy habitat
-    suitability, derived from environmental conditions (temperature, salinity,
-    depth) matched to CalCOFI larval density records.
+    suitability predicted by an XGBoost classifier trained on CUFES
+    (Continuous Underway Fish Egg Sampler) data matched with environmental
+    conditions (temperature, salinity, month, location).
 
-    **Closure overlays** show existing Marine Protected Areas (MPAs), Cowcod
-    Conservation Areas (CCAs), and Rockfish Conservation Areas (RCAs). None of
-    these closures were designed for anchovy — any protection they provide to
-    anchovy habitat is *incidental*.
+    **Closure overlays** show Groundfish Essential Areas (GEAs) from the
+    Federal Register (90 FR 57719). These closures were designed for
+    groundfish conservation — any protection they provide to anchovy
+    habitat is *incidental*.
 
-    **Use the year slider** to see how habitat distribution has shifted over
-    time, particularly during the 2009-2011 population crash.
-
-    > ⚠️ This is currently displaying **mock data** for UI development.
-    > Real model outputs will replace these once the ML pipeline is complete.
+    **Use the year slider** to see how habitat distribution has shifted
+    across the 1996–2022 sampling period.
     """)

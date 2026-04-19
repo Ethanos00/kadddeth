@@ -7,8 +7,8 @@ under +0.5°C / +1°C / +2°C warming assumptions.
 
 import streamlit as st
 from streamlit_folium import st_folium
-from utils.constants import THEMES, SCENARIOS
-from utils.mock_data import (
+from utils.constants import THEMES, SCENARIOS, YEAR_MAX
+from utils.model_data import (
     generate_habitat_grid,
     generate_scenario_grid,
     compute_scenario_coverage,
@@ -166,14 +166,14 @@ st.markdown(
 st.markdown(f"""
 <div style="margin: 8px 0 16px 0">
     <span class="scenario-badge">🌡️ {scenario_label}</span>
-    <span class="scenario-badge">📅 Baseline: 2024</span>
+    <span class="scenario-badge">📅 Baseline: {YEAR_MAX}</span>
     <span class="scenario-badge">🗺️ California Current</span>
 </div>
 """, unsafe_allow_html=True)
 
 # Generate data
 if scenario_delta == 0.0:
-    grid = generate_habitat_grid(2024)
+    grid = generate_habitat_grid(YEAR_MAX)
 else:
     grid = generate_scenario_grid(scenario_delta)
 
@@ -192,7 +192,7 @@ st_folium(habitat_map, width="stretch", height=520, returned_objects=[])
 # ---------------------------------------------------------------------------
 baseline_coverage_row = generate_coverage_timeseries()
 baseline_coverage = baseline_coverage_row[
-    baseline_coverage_row["year"] == 2024
+    baseline_coverage_row["year"] == YEAR_MAX
 ]["coverage_pct"].values[0]
 
 if scenario_delta == 0.0:
@@ -205,8 +205,8 @@ delta_class = "scenario-delta-negative" if delta < 0 else "scenario-delta-positi
 delta_arrow = "↓" if delta < 0 else "↑"
 delta_sign = "+" if delta >= 0 else ""
 
-baseline_high = (generate_habitat_grid(2024)["suitability"] >= 0.5).sum()
-scenario_high = (grid["suitability"] >= 0.5).sum()
+baseline_high = (generate_habitat_grid(YEAR_MAX)["suitability"] >= 0.2).sum()
+scenario_high = (grid["suitability"] >= 0.2).sum()
 hab_delta = scenario_high - baseline_high
 
 col1, col2, col3 = st.columns(3)
