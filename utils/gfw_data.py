@@ -98,14 +98,56 @@ def get_annual_effort():
 
 @st.cache_data(ttl=3600)
 def get_closure_effort():
+    print("ran")
     """Returns {closure_name: total_fishing_hours_2016_2022}."""
     if not GFW_TOKEN:
         return CACHED_CLOSURE_EFFORT
     try:
         result = {}
         for name, coords in CLOSURE_COORDS.items():
+            print(f"ran on name {name}")
             total = sum(_fetch_effort(coords, yr) for yr in range(2016, 2023))
             result[name] = round(total, 2)
         return result
     except Exception:
         return CACHED_CLOSURE_EFFORT
+
+@st.cache_data(ttl=3600)
+def get_spatial_effort(year):
+    """Returns un-aggregated spatial points for purse seiners in CA Current for a given year."""
+    if not GFW_TOKEN:
+        return []
+    try:
+        r = requests.post(
+            _BASE,
+            params={
+                "datasets[0]": "public-global-fishing-effort:latest",
+                "date-range": f"{year}-01-01,{year}-12-31",
+                "filters[0]": "geartype IN ('purse_seines')",
+                "spatial-aggregation": "false",
+                "spatial-resolution": "HIGH",
+                "temporal-resolution": "YEARLY",
+                "format": "JSON",
+                "group-by": "GEARTYPE",
+            },
+            headers=_gfw_headers(),
+            json={"geojson": {"type": "Feature", "properties": {}, "geometry": {
+                "type": "Polygon", "coordinates": [_CA_BOX]
+            }}},
+            timeout=15,
+        )
+        if r.status_code != 200:
+            return []
+            
+        data = r.json()
+        entries = data.get("entries", [])
+        if not entries:
+            return []
+            
+        points = []
+        for ds_data in entries[0].values():
+            if ds_data:
+                points.extend(ds_data)
+        return points
+    except Exception:
+        return []

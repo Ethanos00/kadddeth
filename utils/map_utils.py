@@ -106,6 +106,7 @@ def add_fishing_pressure_layer(
     m: folium.Map,
     closure_effort: dict,
     annual_effort: dict,
+    spatial_effort: list = None,
 ) -> folium.Map:
     """
     Add fishing pressure layer: circle markers at each GEA closure showing
@@ -152,31 +153,31 @@ def add_fishing_pressure_layer(
             tooltip=folium.Tooltip(tooltip, sticky=True),
         ).add_to(fishing_group)
 
-    # Coastal zone markers: approximate locations where fleet operates
-    # (inner shelf, outside GEAs — based on GFW effort patterns for CA purse seiners)
-    fleet_zone_points = [
-        (37.8, -122.5, "San Francisco offshore"),
-        (36.6, -122.0, "Monterey Bay approach"),
-        (35.2, -121.0, "Point Conception area"),
-        (34.0, -119.5, "Santa Barbara Channel"),
-        (33.3, -117.8, "San Diego offshore"),
-    ]
-    for lat, lon, label in fleet_zone_points:
-        folium.CircleMarker(
-            location=[lat, lon],
-            radius=5,
-            color="#f97316",
-            fill=True,
-            fill_color="#f97316",
-            fill_opacity=0.4,
-            weight=1,
-            dash_array="3,3",
-            tooltip=folium.Tooltip(
-                f"<b>Fleet operating zone</b><br>{label}<br>"
-                f"<i>Purse seiners operate in open coastal water,<br>outside GEA boundaries</i>",
-                sticky=True,
-            ),
-        ).add_to(fishing_group)
+    # Spatial fishing locations from GFW (high-res grid points)
+    if spatial_effort:
+        max_spatial = max([p.get('hours', 0) for p in spatial_effort]) if spatial_effort else 1
+        for p in spatial_effort:
+            hours = p.get('hours', 0)
+            if hours > 0:
+                lat = p.get('lat')
+                lon = p.get('lon')
+                # Scale radius: base 2 + scaled by relative intensity
+                radius = 2 + (8 * (hours / max_spatial))
+                folium.CircleMarker(
+                    location=[lat, lon],
+                    radius=radius,
+                    color="#f97316",
+                    fill=True,
+                    fill_color="#f97316",
+                    fill_opacity=0.6,
+                    weight=0.5,
+                    tooltip=folium.Tooltip(
+                        f"<b>Fishing Details (High-Res Grid)</b><br>"
+                        f"Location: {lat:.2f}, {lon:.2f}<br>"
+                        f"Effort: <b>{hours:.1f} hrs</b>",
+                        sticky=True,
+                    ),
+                ).add_to(fishing_group)
 
     fishing_group.add_to(m)
     return m
@@ -189,6 +190,7 @@ def build_habitat_map(
     show_fishing: bool = False,
     closure_effort: dict = None,
     annual_effort: dict = None,
+    spatial_effort: list = None,
     layer_name: str = "Habitat Suitability",
 ) -> folium.Map:
     """Build a complete habitat map with heatmap + closure overlays + optional fishing layer."""
@@ -197,6 +199,6 @@ def build_habitat_map(
     if show_closures:
         m = add_closure_polygons(m, theme_name)
     if show_fishing and closure_effort is not None:
-        m = add_fishing_pressure_layer(m, closure_effort, annual_effort or {})
+        m = add_fishing_pressure_layer(m, closure_effort, annual_effort or {}, spatial_effort)
     folium.LayerControl(collapsed=False).add_to(m)
     return m
