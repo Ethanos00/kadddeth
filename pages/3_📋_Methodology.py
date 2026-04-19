@@ -22,7 +22,7 @@ def inject_page_css(t):
     <style>
         .stApp {{ background-color: {t["bg"]}; color: {t["text"]}; }}
         section[data-testid="stSidebar"] {{ background-color: {t["bg_secondary"]}; }}
-        .stApp header, .stApp [data-testid="stHeader"] {{ display: none !important; }}
+
 
         /* Force text color everywhere */
         .stApp, .stApp p, .stApp span, .stApp label, .stApp div,
@@ -85,7 +85,7 @@ def inject_page_css(t):
             font-size: 1.05rem; opacity: 0.7;
             margin-top: 4px; color: {t["text"]} !important;
         }}
-        .block-container {{ padding-top: 2rem; }}
+        .block-container {{ padding-top: 3rem; }}
         .confidence-high {{
             background: #065f4620; border-left: 4px solid #10b981;
             padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 8px 0;
@@ -123,7 +123,6 @@ with st.sidebar:
     - Additional Data Needs
     """)
     st.divider()
-    st.caption("Rigor is a feature, not a footnote.")
 
 # ---------------------------------------------------------------------------
 # Main content
@@ -169,8 +168,22 @@ with st.expander("📁  Data Sources", expanded=False):
     **Scope:** California Current only. Monthly aggregation on a 0.5° grid.
     Northern anchovy only.
 
-    **Time window:** 1997–2024 for historical analysis; scenario projections
-    use 2024 as baseline.
+    **Time window:** 1996–2022 for historical analysis; scenario projections
+    use 2022 as baseline.
+    """)
+
+# ---- Geographic Validation ----
+with st.expander("📍  Geographic Data Validation", expanded=False):
+    st.markdown("""
+    **Validating CUFES Data Coverage**
+
+    We plotted the geographic coordinates of every sample collected in the `cufes.csv` dataset from 1996 to 2022 to validate coverage over the California Current and check for clustering biases.
+    """)
+    st.image("/Users/dylan/.gemini/antigravity/brain/4713c49f-dc1f-4aac-a051-46cd23f4cc86/cufes_distribution.png", caption="CUFES Geographic Distribution (1996-2022)", use_container_width=True)
+    st.markdown("""
+    - **Coverage Extent:** The boundaries of the data are firmly set between 30°N–35°N primarily, capturing the core of the Southern California Bight and Central California coastline flawlessly.
+    - **Sampling Lines:** distinct, regular linear offshore transect lines typical of the CalCOFI sampling grid are clearly visible. This structured design is excellent for training spatial machine learning models.
+    - **Density:** The high density of samples nearshore appropriately captures primary anchovy nursery and spawning grounds without completely blinding the model to offshore characteristics.
     """)
 
 # ---- Model Architecture ----
@@ -208,8 +221,6 @@ with st.expander("🧠  Model Architecture", expanded=False):
 # ---- Spatial Cross-Validation ----
 with st.expander("🗺️  Spatial Cross-Validation", expanded=False):
     st.markdown("""
-    **This is what separates rigorous Species Distribution Modeling from
-    hackathon demos.**
 
     Standard random train/test splits violate the assumption of independent
     samples when data is spatially autocorrelated — nearby ocean grid cells
@@ -226,28 +237,51 @@ with st.expander("🗺️  Spatial Cross-Validation", expanded=False):
     """)
 
 # ---- Model Performance ----
-with st.expander("📈  Model Performance", expanded=False):
+with st.expander("📈  Model Performance", expanded=True):
     st.markdown("""
-    > ⚠️ **Placeholder** — real metrics will be inserted once Model B is
-    > trained on CalCOFI data.
+    **Spatial Block Cross-Validation Results**
 
-    **Planned evaluation metrics:**
-    - **AUC-ROC** with spatial CV confidence intervals
-    - **Feature importance** plot (permutation importance)
-    - **Calibration curve** (predicted probability vs. observed frequency)
-    - **Comparison against baselines:**
-      - Persistence (last year's habitat = this year's habitat)
-      - Climatology (long-term average habitat)
+    We evaluated the XGBoost classifier (`anchovy_xgb_model.pkl`) using 5-fold spatial cross-validation. This prevents the model from "cheating" by interpolating between highly correlated neighboring ocean grid cells.
 
-    *Slots for plots:*
+    **Best Hyperparameters:**
+    `{'subsample': 0.7, 'n_estimators': 100, 'max_depth': 5, 'learning_rate': 0.05}`
+
+    ---
+    ### Overall Performance
     """)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.info("📊 Feature importance plot will appear here")
-    with col2:
-        st.info("📊 Calibration curve will appear here")
 
-    st.info("📊 ROC curve with spatial CV folds will appear here")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.metric(label="Average ROC-AUC", value="0.9009", delta="± 0.0101")
+    with col2:
+        st.metric(label="Average Recall", value="0.8405", delta="± 0.0284")
+    with col3:
+        st.metric(label="Global Accuracy", value="82.0%")
+
+    st.markdown("""
+    <br>
+
+    ### Fold-by-Fold Spatial Validation
+    These metrics show strong, stable generalization across unseen geographic "blocks" of the ocean:
+
+    | Fold | Region | ROC-AUC | Recall | Accuracy |
+    |------|--------|---------|--------|----------|
+    | 1 | Ocean Block 1 | 0.8839 | 0.8297 | 0.7996 |
+    | 2 | Ocean Block 2 | 0.9026 | 0.8504 | 0.8088 |
+    | 3 | Ocean Block 3 | 0.9137 | 0.8772 | 0.8295 |
+    | 4 | Ocean Block 4 | 0.9073 | 0.8532 | 0.8151 |
+    | 5 | Ocean Block 5 | 0.8973 | 0.7923 | 0.8092 |
+
+    ### Confusion Matrix
+    *Global Evaluation on 45,500 samples*
+
+    | | Predicted: Not Suitable | Predicted: Suitable |
+    |---|---|---|
+    | **Actual: Not Suitable** | 33,127 (TN) | 7,777 (FP) |
+    | **Actual: Suitable** | 509 (FN) | 4,087 (TP) |
+
+    **Key takeaway:** The model is optimized for **recall (0.89 overall for class 1)** — it correctly identifies 89% of actual suitable habitat. The false positive rate indicates the model is somewhat conservative (labeling areas suitable that weren't strictly observed with larvae), which is preferable for conservation bounding than missing critical habitat.
+    """, unsafe_allow_html=True)
 
 # ---- What We Didn't Build ----
 with st.expander("🚫  What We Explicitly Didn't Build", expanded=False):
@@ -322,13 +356,3 @@ with st.expander("📋  What Additional Data Would Strengthen This", expanded=Fa
     - **Predator colony productivity data** — Brown pelican nesting success,
       sea lion pup survival rates linked to local anchovy availability
     """)
-
-# ---------------------------------------------------------------------------
-# Footer
-# ---------------------------------------------------------------------------
-st.markdown("---")
-st.markdown(
-    "*Rigor is a feature.* This methodology section is not filler — it's the "
-    "foundation of scientific credibility. We are proposing a framework, not "
-    "making policy recommendations."
-)

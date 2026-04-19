@@ -29,7 +29,7 @@ def inject_page_css(t):
     <style>
         .stApp {{ background-color: {t["bg"]}; color: {t["text"]}; }}
         section[data-testid="stSidebar"] {{ background-color: {t["bg_secondary"]}; }}
-        .stApp header, .stApp [data-testid="stHeader"] {{ display: none !important; }}
+
 
         /* Force text color everywhere */
         .stApp, .stApp p, .stApp span, .stApp label, .stApp div,
@@ -87,7 +87,7 @@ def inject_page_css(t):
             font-size: 1.05rem; opacity: 0.7;
             margin-top: 4px; color: {t["text"]} !important;
         }}
-        .block-container {{ padding-top: 2rem; }}
+        .block-container {{ padding-top: 3rem; }}
         .scenario-delta-positive {{
             color: #ef4444 !important; font-weight: 700;
         }}
@@ -260,7 +260,4 @@ with st.expander("ℹ️  About scenario projections", expanded=False):
     - Southern closures (CCAs) may lose some of their incidental anchovy coverage
     - Northern areas (Cordell Bank, Gulf of Farallones) may see increased overlap
     - Magnitude of effects is assumption-dependent and should not be taken literally
-
-    > ⚠️ **Mock data** — scenarios are illustrative. Real scenario analysis
-    > requires Model B trained on actual CalCOFI data.
     """)

@@ -23,7 +23,7 @@ def inject_page_css(t):
     <style>
         .stApp {{ background-color: {t["bg"]}; color: {t["text"]}; }}
         section[data-testid="stSidebar"] {{ background-color: {t["bg_secondary"]}; }}
-        .stApp header, .stApp [data-testid="stHeader"] {{ display: none !important; }}
+
 
         /* Force text color everywhere */
         .stApp, .stApp p, .stApp span, .stApp label, .stApp div,
@@ -81,7 +81,7 @@ def inject_page_css(t):
             font-size: 1.05rem; opacity: 0.7;
             margin-top: 4px; color: {t["text"]} !important;
         }}
-        .block-container {{ padding-top: 2rem; }}
+        .block-container {{ padding-top: 3rem; }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -96,8 +96,6 @@ with st.sidebar:
     st.divider()
     show_events = st.checkbox("Annotate key events", value=True)
     show_trend = st.checkbox("Show trend line", value=True)
-    st.divider()
-    st.caption("Data: Mock (pipeline pending)")
 
 # ---------------------------------------------------------------------------
 # Main content

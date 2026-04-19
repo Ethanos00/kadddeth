@@ -46,11 +46,7 @@ def inject_custom_css(theme_name: str):
             color: {t["text"]};
         }}
 
-        /* Hide top header / deploy bar */
-        .stApp header,
-        .stApp [data-testid="stHeader"] {{
-            display: none !important;
-        }}
+
 
         /* Force text color on ALL Streamlit elements */
         .stApp, .stApp p, .stApp span, .stApp label, .stApp div,
@@ -144,7 +140,7 @@ def inject_custom_css(theme_name: str):
 
         /* ---- Misc polish ---- */
         .block-container {{
-            padding-top: 1rem;
+            padding-top: 3rem;
         }}
 
         /* ---- Slider: blue thumb, gray track ---- */
