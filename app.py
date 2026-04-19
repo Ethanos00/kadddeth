@@ -31,7 +31,7 @@ st.set_page_config(
 def get_theme() -> str:
     """Return the current theme name from session state."""
     if "theme" not in st.session_state:
-        st.session_state.theme = "Light"
+        st.session_state.theme = "Dark"
     return st.session_state.theme
 
 
@@ -224,16 +224,7 @@ with st.sidebar:
     st.markdown("##### Spatial Framework for the California Current")
     st.divider()
 
-    # Theme toggle
-    theme_choice = st.radio(
-        "Theme",
-        options=["Dark", "Light"],
-        index=0 if st.session_state.theme == "Dark" else 1,
-        horizontal=True,
-    )
-    if theme_choice != st.session_state.theme:
-        st.session_state.theme = theme_choice
-        st.rerun()
+
 
     st.divider()
 
