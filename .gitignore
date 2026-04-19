@@ -1,4 +1,8 @@
 CalCOFI_Database
 .DS_Store
 Cufes.csv
+cufes.csv
 utils/__pycache__/
+__pycache__/
+*.pyc
+.streamlit/secrets.toml

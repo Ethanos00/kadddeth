@@ -1,7 +1,5 @@
-xarray[complete]
-netCDF4
-dask
 pandas
+numpy
 geopandas
 scikit-learn
 xgboost
@@ -10,3 +8,6 @@ streamlit
 plotly
 streamlit-folium
 shapely
+requests
+xarray
+

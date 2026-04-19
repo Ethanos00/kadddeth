@@ -23,7 +23,14 @@ from utils.constants import (
 # ---------------------------------------------------------------------------
 _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _MODEL_PATH = os.path.join(_BASE_DIR, "anchovy_xgb_model.pkl")
-_CSV_PATH = os.path.join(_BASE_DIR, "cufes.csv")
+
+# Handle both capitalizations (macOS is case-insensitive, Linux is not)
+_CSV_PATH = next(
+    (os.path.join(_BASE_DIR, n) for n in ("Cufes.csv", "cufes.csv")
+     if os.path.exists(os.path.join(_BASE_DIR, n))),
+    os.path.join(_BASE_DIR, "Cufes.csv"),  # fallback path (will fail gracefully)
+)
+_HAS_DATA = os.path.exists(_CSV_PATH) and os.path.exists(_MODEL_PATH)
 
 # ---------------------------------------------------------------------------
 # Lazy-loaded singletons
@@ -81,12 +88,13 @@ def generate_habitat_grid(year: int) -> pd.DataFrame:
     Produce a 0.5° habitat suitability grid for *year* using the real
     XGBoost model evaluated on CUFES sample locations.
 
-    For each 0.5° cell, we take all CUFES samples from that year that
-    fall inside the cell, predict P(suitable) with the model, and average.
-    Cells with no samples in that year get suitability = 0.
-
+    Falls back to mock data if Cufes.csv or the model file are absent.
     Returns DataFrame with columns: lat, lon, suitability.
     """
+    if not _HAS_DATA:
+        from utils.mock_data import generate_habitat_grid as _mock_grid
+        return _mock_grid(year)
+
     model = _load_model()
     df = _load_cufes()
 
@@ -135,9 +143,12 @@ def generate_scenario_grid(scenario_delta: float) -> pd.DataFrame:
     """
     Generate habitat suitability under a warming scenario.
 
-    Takes the most recent year of CUFES data available, applies a
-    uniform temperature offset, and re-predicts suitability.
+    Falls back to mock data if Cufes.csv or the model file are absent.
     """
+    if not _HAS_DATA:
+        from utils.mock_data import generate_scenario_grid as _mock_scenario
+        return _mock_scenario(scenario_delta)
+
     model = _load_model()
     df = _load_cufes()
 
